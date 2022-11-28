@@ -1,41 +1,136 @@
 var slider = document.getElementById('range')
 var output = document.getElementById('output')
+var bubble = document.getElementById('bubble')
+var animationOngoing = false
+var animationDone = false // check if sorting algo finished
+var data //global object
+
+//sort coloring
+var doneColor = 'green'
+var processColor = 'red'
+var normalColor = 'blue'
+
+
+
 slider.oninput = function() {
     output.innerHTML = this.value;
-    var number = this.value * 2
-    var data = makeBoard(number)
+    var number = this.value
+    data = new SortVisualizer(number)
+    data.makeBlock()
+    
 }
- function makeBoard(number){
-    var data = makeArray(number)
-    var randomData = shuffleArray(data)
-    makeBlock(randomData)
-    return randomData
+function bubbleSort(){
+    data.bubbleSort()
 }
-function makeArray(number){
-    var data = []
-    for(var i = 0; i < number; i++){
-        var currentNumber = 30 + i*3
-        data.push(currentNumber)
+class SortVisualizer {
+    constructor (number) {
+        this.number = number * 4
+        this.randomData = generateRandomArray(this.number)
+        animationOngoing = false
+        animationDone = false
     }
-    return data
-}
-function shuffleArray(array){
-    for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
+    makeBlock(){
+        var data = document.querySelector('.data')
+        data.replaceChildren()
+        for (var i = 0; i < this.randomData.length; i++){
+            var block = document.createElement('div')
+            block.classList.add('block')
+            block.setAttribute('id', i)
+            if (this.randomData.length.length < 300){
+                block.style.height = this.randomData[i] + 'px';
+            }
+            else{
+                block.style.height = this.randomData[i]/2 + 'px';
+            }
+            block.style.width = 50 + 'px';
+            data.append(block)
+        }
+    };
+    async bubbleSort(){
+        animationDone = false
+        animationOngoing = true
+        for(var i = 0; i < this.randomData.length; i++){
+            for (var j = 0; j < this.randomData.length; j++){
+                if (compare(this.randomData[j], this.randomData[j + 1]) === 1){
+                    swap(this.randomData, j, j + 1)
+                    bubbleAnimation(j, j + 1, this.randomData)
+                    await sleep(this.randomData.length)
+                    if (animationOngoing == false){
+                        return
+                    }
+                }
+            }
+        }
+        animationDone = true
+        doneAnimation(this.randomData.length)
     }
-  return array
 }
-function makeBlock(n){
-    var data = document.querySelector('.data')
-    data.replaceChildren()
-    for (var i = 0; i < n.length; i++){
-        var block = document.createElement('div')
-        block.classList.add('block')
-        block.style.height = n[i] + 10 + 'px';
-        block.style.width = 50 + 'px';
-        data.append(block)
+
+function sleep(length){
+    return new Promise((resolve) => setTimeout(resolve, length))
+}
+async function doneAnimation(length){
+    let block = document.getElementsByClassName('block')
+    for(let i in block){
+        if(animationDone == true){
+            block[i].style.backgroundColor = processColor
+            await sleep(length/2)
+            block[i].style.backgroundColor = doneColor
+        }
     }
-};
+}
+async function bubbleAnimation(a, b, arr){
+    let block = document.getElementsByClassName('block')
+    block[a].style.backgroundColor = processColor
+    block[b].style.backgroundColor = processColor
+    if (arr.length.length < 300){
+        block[a].style.height = arr[a] + 'px';
+        block[b].style.height = arr[b] + 'px';
+    }
+    else{
+        block[a].style.height = arr[a]/2 + 'px';
+        block[b].style.height = arr[b]/2 + 'px';
+    }
+    await sleep(arr.length)
+    block[a].style.backgroundColor = normalColor
+    block[b].style.backgroundColor = normalColor
+    return
+}
+function generateRandomArray(n){
+    var array = []
+    for (var i = 0; i < n; i++) {
+        array.push(getRandomArbitrary(5,1000))
+    }
+    return array
+}
+
+
+//HELPER FUNCTIONS
+//https://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in-javascript-in-a-specific-range
+function getRandomArbitrary(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
+function swap(arr, a, b){
+    let temp = arr[a]
+    arr[a] = arr[b]
+    arr[b] = temp
+    return
+}
+function compare(a, b){
+    if (a === b){
+        return 0;
+    }
+    else if (a > b){
+        return 1;
+    }
+    else{
+        return -1;
+    }
+    //TIED = 0
+    //A GREATER B = 1
+    //A LESSER B= -1
+}
+
+//displays array when loading the website
+data = new SortVisualizer(50)
+data.makeBlock()
