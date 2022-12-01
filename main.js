@@ -1,7 +1,7 @@
 var slider = document.getElementById('range')
 var output = document.getElementById('output')
-
-
+let block = document.getElementsByClassName('block')
+let bubbleButton = document.getElementById('bubble')
 var animationOngoing = false
 var animationDone = false
 var data //global object
@@ -29,6 +29,9 @@ function randomizeArray(){
 function bubbleSort(){
     data.bubbleSort()
 }
+function selectionSort(){
+    data.selectionSort()
+}
 
 class SortVisualizer {
     constructor (number) {
@@ -45,31 +48,22 @@ class SortVisualizer {
             var block = document.createElement('div')
             block.classList.add('block')
             block.setAttribute('id', i)
-            if (this.randomData.length.length < 300){
-                block.style.height = this.randomData[i] + 'px';
-            }
-            else{
-                block.style.height = this.randomData[i]/2 + 'px';
-            }
+            block.style.height = this.randomData[i]/2 + 'px';
             block.style.width = 50 + 'px';
             data.append(block)
         }
+        //reenable bubble button
+        bubbleButton.disabled = false
     };
     async bubbleSort(){
         animationDone = false
         animationOngoing = true
         let length = this.randomData.length
-        let speed = length
-        if (length <= 30){
-            speed = length * 80
-        }
-        else{
-            speed = length / 100
-        }
+        let speed = declareSpeed(length)
         for(var i = 0; i < length; i++){
             let sorted = true
             for (var j = 0; j < length; j++){
-                highlightAnimation(j, j+1, length, speed)
+                highlightBubbleAnimation(j, j+1, length, speed)
                 await sleep(speed)
                 if (compare(this.randomData[j], this.randomData[j + 1]) === 1){
                     swap(this.randomData, j, j + 1)
@@ -80,6 +74,7 @@ class SortVisualizer {
                         return
                     }
                 }
+                
             }
             if(sorted == true){
                 break
@@ -87,6 +82,44 @@ class SortVisualizer {
         }
         animationDone = true
         doneAnimation(length, speed)
+    }
+    async selectionSort(){
+        if (animationOngoing == true){
+            return
+        }
+        animationDone = false
+        while(!animationDone){
+            bubbleButton.disabled = true
+            animationOngoing = true
+            let length = this.randomData.length
+            let speed = declareSpeed(length)
+            for (var i = 0; i < length - 1; i++){
+                let sorted = true
+                let minIndex = i
+                for(var j = 1 + i; j < length; j++){
+                    highlightSelectionAnimation(minIndex, j, length, speed)
+                    await sleep(speed)
+                    if(this.randomData[j] < this.randomData[minIndex] || (i == 0 && j == 0)){
+                        selectionMinIndexAnimation(minIndex, j, this.randomData, speed)
+                        await sleep(speed)
+                        minIndex = j
+                    }
+                    sorted = false
+                    if (animationOngoing == false){
+                        return
+                    }
+                }
+                swap(this.randomData, minIndex, i)
+                selectionSortSwapAnimation(minIndex, i, this.randomData, speed)
+                await sleep(speed)
+                if(sorted == true){
+                    break
+                }
+            }
+            block[length - 1].style.backgroundColor = doneColor
+            animationDone = true
+        }
+        bubbleButton.disabled = false
     }
 }
 
@@ -96,8 +129,20 @@ class SortVisualizer {
 function sleep(length){
     return new Promise((resolve) => setTimeout(resolve, length))
 }
+
+function declareSpeed(length){
+    let speed = length
+    if (length <= 30){
+        speed = length * 80
+    }
+    else{
+        speed = length / 100000
+    }
+    return speed
+}
+
+//HIGHLIGHTING ANIMATIONS
 async function doneAnimation(length, speed){
-    let block = document.getElementsByClassName('block')
     for(let i = 0; i < length; i++){
         if(animationDone == true){
             block[i].style.backgroundColor = processColor
@@ -106,12 +151,11 @@ async function doneAnimation(length, speed){
         }
     }
 }
-async function highlightAnimation(a, b, length, speed){
-    let block = document.getElementsByClassName('block')
+async function highlightBubbleAnimation(a, b, length, speed){
     if (a == length - 1){
         block[a].style.backgroundColor = highlightColor
         await sleep(speed)
-    block[a].style.backgroundColor = normalColor
+        block[a].style.backgroundColor = normalColor
     }else{
         block[a].style.backgroundColor = highlightColor
         block[b].style.backgroundColor = highlightColor
@@ -120,25 +164,51 @@ async function highlightAnimation(a, b, length, speed){
         block[b].style.backgroundColor = normalColor
     }
 }
+async function highlightSelectionAnimation(a, b, length, speed){
+    if (a == length - 1){
+        block[a].style.backgroundColor = highlightColor
+        await sleep(speed)
+        block[a].style.backgroundColor = normalColor
+    }else{
+        block[a].style.backgroundColor = processColor
+        block[b].style.backgroundColor = highlightColor
+        await sleep(speed)
+        block[a].style.backgroundColor = normalColor
+        block[b].style.backgroundColor = normalColor
+    }
+}
+
+
+
 
 // SORTING FUNCTIONS
 async function bubbleAnimation(a, b, arr, speed){
-    let block = document.getElementsByClassName('block')
     block[a].style.backgroundColor = processColor
     block[b].style.backgroundColor = processColor
-    if (arr.length.length < 300){
-        block[a].style.height = arr[a] + 'px';
-        block[b].style.height = arr[b] + 'px';
-    }
-    else{
-        block[a].style.height = arr[a]/2 + 'px';
-        block[b].style.height = arr[b]/2 + 'px';
-    }
+    block[a].style.height = arr[a]/2 + 'px';
+    block[b].style.height = arr[b]/2 + 'px';
     await sleep(speed)
     block[a].style.backgroundColor = normalColor
     block[b].style.backgroundColor = normalColor
     return
 }
+async function selectionMinIndexAnimation(a, b, arr, speed){
+    block[a].style.backgroundColor = normalColor
+    block[b].style.backgroundColor = processColor
+}
+async function selectionSortSwapAnimation(a, b, arr, speed){
+    block[a].style.backgroundColor = processColor
+    block[b].style.backgroundColor = processColor
+    await sleep(speed)
+    block[a].style.height = arr[a]/2 + 'px'
+    block[b].style.height = arr[b]/2 + 'px'
+    block[a].style.backgroundColor = normalColor
+    block[b].style.backgroundColor = doneColor
+}
+
+
+
+
 function generateRandomArray(n){
     var array = []
     for (var i = 0; i < n; i++) {
