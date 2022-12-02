@@ -11,6 +11,7 @@ var doneColor = 'white'
 var processColor = 'red'
 var highlightColor = 'green'
 var normalColor = 'blue'
+var sortedColor = 'purple'
 
 
 
@@ -31,6 +32,9 @@ function bubbleSort(){
 }
 function selectionSort(){
     data.selectionSort()
+}
+function mergeSort(){
+    data.mergeSort()
 }
 
 class SortVisualizer {
@@ -62,7 +66,8 @@ class SortVisualizer {
         let speed = declareSpeed(length)
         for(var i = 0; i < length; i++){
             let sorted = true
-            for (var j = 0; j < length; j++){
+
+            for (var j = 0; j < length - i - 1; j++){
                 highlightBubbleAnimation(j, j+1, length, speed)
                 await sleep(speed)
                 if (compare(this.randomData[j], this.randomData[j + 1]) === 1){
@@ -74,8 +79,8 @@ class SortVisualizer {
                         return
                     }
                 }
-                
             }
+            doneBubbleBlock((length - 1) - i, length, speed)
             if(sorted == true){
                 break
             }
@@ -83,6 +88,7 @@ class SortVisualizer {
         animationDone = true
         doneAnimation(length, speed)
     }
+
     async selectionSort(){
         if (animationOngoing == true){
             return
@@ -116,40 +122,39 @@ class SortVisualizer {
                     break
                 }
             }
-            block[length - 1].style.backgroundColor = doneColor
+            block[length - 1].style.backgroundColor = sortedColor
             animationDone = true
+            doneAnimation(length,speed)
         }
         bubbleButton.disabled = false
     }
+
+    async mergeSort(){
+        animationDone = false
+        animationOngoing = true
+        let length = this.randomData.length
+        let speed = declareSpeed(length)
+    }
 }
 
 
 
 
-function sleep(length){
-    return new Promise((resolve) => setTimeout(resolve, length))
-}
 
-function declareSpeed(length){
-    let speed = length
-    if (length <= 30){
-        speed = length * 80
-    }
-    else{
-        speed = length / 100000
-    }
-    return speed
-}
 
-//HIGHLIGHTING ANIMATIONS
-async function doneAnimation(length, speed){
-    for(let i = 0; i < length; i++){
-        if(animationDone == true){
-            block[i].style.backgroundColor = processColor
-            await sleep(speed)
-            block[i].style.backgroundColor = doneColor
-        }
-    }
+
+
+
+// BUBBLE SORTING
+async function bubbleAnimation(a, b, arr, speed){
+    block[a].style.backgroundColor = processColor
+    block[b].style.backgroundColor = processColor
+    block[a].style.height = arr[a]/2 + 'px';
+    block[b].style.height = arr[b]/2 + 'px';
+    await sleep(speed)
+    block[a].style.backgroundColor = normalColor
+    block[b].style.backgroundColor = normalColor
+    return
 }
 async function highlightBubbleAnimation(a, b, length, speed){
     if (a == length - 1){
@@ -163,6 +168,26 @@ async function highlightBubbleAnimation(a, b, length, speed){
         block[a].style.backgroundColor = normalColor
         block[b].style.backgroundColor = normalColor
     }
+}
+async function doneBubbleBlock(a,length,speed){
+    block[a].style.backgroundColor = sortedColor
+}
+
+
+
+//SELECTION SORTING
+async function selectionMinIndexAnimation(a, b, arr, speed){
+    block[a].style.backgroundColor = normalColor
+    block[b].style.backgroundColor = processColor
+}
+async function selectionSortSwapAnimation(a, b, arr, speed){
+    block[a].style.backgroundColor = processColor
+    block[b].style.backgroundColor = processColor
+    await sleep(speed)
+    block[a].style.height = arr[a]/2 + 'px'
+    block[b].style.height = arr[b]/2 + 'px'
+    block[a].style.backgroundColor = normalColor
+    block[b].style.backgroundColor = sortedColor
 }
 async function highlightSelectionAnimation(a, b, length, speed){
     if (a == length - 1){
@@ -178,37 +203,35 @@ async function highlightSelectionAnimation(a, b, length, speed){
     }
 }
 
-
-
-
-// SORTING FUNCTIONS
-async function bubbleAnimation(a, b, arr, speed){
-    block[a].style.backgroundColor = processColor
-    block[b].style.backgroundColor = processColor
-    block[a].style.height = arr[a]/2 + 'px';
-    block[b].style.height = arr[b]/2 + 'px';
-    await sleep(speed)
-    block[a].style.backgroundColor = normalColor
-    block[b].style.backgroundColor = normalColor
-    return
+//HELPER FUNCTIONS
+function sleep(length){
+    return new Promise((resolve) => setTimeout(resolve, length))
 }
-async function selectionMinIndexAnimation(a, b, arr, speed){
-    block[a].style.backgroundColor = normalColor
-    block[b].style.backgroundColor = processColor
+function declareSpeed(length){
+    let speed = length
+    if (length <= 30){
+        speed = length * 80
+    }
+    else{
+        speed = length / 100000
+    }
+    return speed
 }
-async function selectionSortSwapAnimation(a, b, arr, speed){
-    block[a].style.backgroundColor = processColor
-    block[b].style.backgroundColor = processColor
-    await sleep(speed)
-    block[a].style.height = arr[a]/2 + 'px'
-    block[b].style.height = arr[b]/2 + 'px'
-    block[a].style.backgroundColor = normalColor
-    block[b].style.backgroundColor = doneColor
+async function doneAnimation(length, speed){
+    for(let i = 0; i < length; i++){
+        if(animationDone == true){
+            block[i].style.backgroundColor = processColor
+            await sleep(speed)
+        }
+    }
+    for(let i = 0; i < length; i++){
+        if(animationDone == true){
+            block[i].style.backgroundColor = doneColor
+            await sleep(speed)
+            
+        }
+    }
 }
-
-
-
-
 function generateRandomArray(n){
     var array = []
     for (var i = 0; i < n; i++) {
@@ -216,9 +239,6 @@ function generateRandomArray(n){
     }
     return array
 }
-
-
-//HELPER FUNCTIONS
 //https://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in-javascript-in-a-specific-range
 function getRandomArbitrary(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
@@ -244,6 +264,9 @@ function compare(a, b){
     //A LESSER B= -1
 }
 
+
+
 //displays array when loading the website
 data = new SortVisualizer(50)
 data.makeBlock()
+
