@@ -90,7 +90,7 @@ class SortVisualizer {
     }
 
     async selectionSort(){
-        if (animationOngoing == true){
+        if (animationOngoing){
             return
         }
         animationDone = false
@@ -128,20 +128,43 @@ class SortVisualizer {
         }
         bubbleButton.disabled = false
     }
-
+    //https://www.youtube.com/watch?v=pFXYym4Wbkc&t=1818s
     async mergeSort(){
+        if(animationOngoing){
+            return
+        }
         animationDone = false
         animationOngoing = true
-        let length = this.randomData.length
-        let speed = declareSpeed(length)
+            let length = this.randomData.length
+            let speed = length / 100000
+            let animations = getMergeSortAnimations(this.randomData)
+            for (let i = 0; i < animations.length; i++) {
+                if (!animationOngoing){
+                    return
+                }
+                const isColorChange = i % 3 !== 2;
+                if (isColorChange) {
+                const [barOneIdx, barTwoIdx] = animations[i];
+                const barOneStyle = block[barOneIdx].style;
+                const barTwoStyle = block[barTwoIdx].style;
+                const color = i % 3 === 0 ? processColor : normalColor;
+                barOneStyle.backgroundColor = color;
+                barTwoStyle.backgroundColor = color;
+                await sleep(speed)
+                } else {
+                    const [barOneIdx, newHeight] = animations[i];
+                    const barOneStyle = block[barOneIdx].style;
+                    barOneStyle.height = `${newHeight / 2}px`;
+                    await sleep(speed)
+                }
+            }
+            animationDone = true
+            if(animationDone){
+                doneAnimation(length,speed)
+                return
+            }
     }
 }
-
-
-
-
-
-
 
 
 
@@ -202,6 +225,80 @@ async function highlightSelectionAnimation(a, b, length, speed){
         block[b].style.backgroundColor = normalColor
     }
 }
+//MERGE SORT ALL CREDITS TO https://www.youtube.com/watch?v=pFXYym4Wbkc&t=1818s
+function getMergeSortAnimations (arr){
+    const animations = [];
+    if (arr.length <= 1) return arr;
+    const auxArr = arr.slice();
+    mergeSortHelper(arr, 0, arr.length - 1, auxArr, animations);
+    return animations;
+    
+}
+function mergeSortHelper(arr, leftIndex, rightIndex, auxArr, animations){
+    if(leftIndex === rightIndex) return;
+    const middleIndex = Math.floor((leftIndex + rightIndex) / 2);
+    mergeSortHelper(auxArr, leftIndex, middleIndex, arr, animations);
+    mergeSortHelper(auxArr, middleIndex + 1, rightIndex, arr, animations);
+    merge(arr, leftIndex, middleIndex, rightIndex, auxArr, animations);
+}
+function merge(
+    mainArray,
+    startIdx,
+    middleIdx,
+    endIdx,
+    auxiliaryArray,
+    animations,
+  ) {
+    let k = startIdx;
+    let i = startIdx;
+    let j = middleIdx + 1;
+    while (i <= middleIdx && j <= endIdx) {
+      // These are the values that we're comparing; we push them once
+      // to change their color.
+      animations.push([i, j]);
+      // These are the values that we're comparing; we push them a second
+      // time to revert their color.
+      animations.push([i, j]);
+      if (auxiliaryArray[i] <= auxiliaryArray[j]) {
+        // We overwrite the value at index k in the original array with the
+        // value at index i in the auxiliary array.
+        animations.push([k, auxiliaryArray[i]]);
+        mainArray[k++] = auxiliaryArray[i++];
+      } else {
+        // We overwrite the value at index k in the original array with the
+        // value at index j in the auxiliary array.
+        animations.push([k, auxiliaryArray[j]]);
+        mainArray[k++] = auxiliaryArray[j++];
+      }
+    }
+    while (i <= middleIdx) {
+      // These are the values that we're comparing; we push them once
+      // to change their color.
+      animations.push([i, i]);
+      // These are the values that we're comparing; we push them a second
+      // time to revert their color.
+      animations.push([i, i]);
+      // We overwrite the value at index k in the original array with the
+      // value at index i in the auxiliary array.
+      animations.push([k, auxiliaryArray[i]]);
+      mainArray[k++] = auxiliaryArray[i++];
+    }
+    while (j <= endIdx) {
+      // These are the values that we're comparing; we push them once
+      // to change their color.
+      animations.push([j, j]);
+      // These are the values that we're comparing; we push them a second
+      // time to revert their color.
+      animations.push([j, j]);
+      // We overwrite the value at index k in the original array with the
+      // value at index j in the auxiliary array.
+      animations.push([k, auxiliaryArray[j]]);
+      mainArray[k++] = auxiliaryArray[j++];
+    }
+  }
+
+
+
 
 //HELPER FUNCTIONS
 function sleep(length){
