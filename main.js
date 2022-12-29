@@ -97,7 +97,7 @@ class SortVisualizer {
             let sorted = true
 
             for (var j = 0; j < length - i - 1; j++){
-                highlightBubbleAnimation(j, j+1, length, speed)
+                highlightBubbleAnimation(j, j+1, this.randomData, speed)
                 await sleep(speed)
                 if (compare(this.randomData[j], this.randomData[j + 1]) === 1){
                     swap(this.randomData, j, j + 1)
@@ -131,7 +131,7 @@ class SortVisualizer {
                 let sorted = true
                 let minIndex = i
                 for(var j = 1 + i; j < length; j++){
-                    highlightSelectionAnimation(minIndex, j, length, speed)
+                    highlightSelectionAnimation(j, this.randomData, speed)
                     await sleep(speed)
                     if(this.randomData[j] < this.randomData[minIndex] || (i == 0 && j == 0)){
                         selectionMinIndexAnimation(minIndex, j, this.randomData, speed)
@@ -172,6 +172,7 @@ class SortVisualizer {
                 const isColorChange = i % 3 !== 2;
                 if (isColorChange) {
                 const [barOneIdx, barTwoIdx] = animations[i];
+                playNote(200 + (block[barOneIdx].style.height.slice(0,-2) * soundMultiplier))
                 const barOneStyle = block[barOneIdx].style;
                 const barTwoStyle = block[barTwoIdx].style;
                 const color = i % 3 === 0 ? processColor : normalColor;
@@ -199,7 +200,7 @@ class SortVisualizer {
         animationOngoing = true
         let length = this.randomData.length
         let speed = declareSpeed(length)
-        heap(this.randomData)
+        let animation = getHeapAnimations(this.randomData)
         for(let i in animation){
             if (!animationOngoing){
                 return
@@ -207,6 +208,7 @@ class SortVisualizer {
             const isColorChange = animation[i].at(3);
             if (isColorChange == 0) {
                 const [barOneIdx, barTwoIdx, barThreeIdx] = animation[i];
+                playNote(200 + (block[barOneIdx].style.height.slice(0,-2) * soundMultiplier))
                 const barOneStyle = block[barOneIdx].style;
                 const barTwoStyle = block[barTwoIdx].style;
                 const barThreeStyle = block[barThreeIdx].style;
@@ -225,6 +227,7 @@ class SortVisualizer {
                 await sleep(speed)
             }else{
                 const [barOneIdx, barTwoIdx] = animation[i];
+                playNote(200 + (block[barOneIdx].style.height.slice(0,-2) * soundMultiplier))
                 const barOneStyle = block[barOneIdx].style;
                 const barTwoStyle = block[barTwoIdx].style;
                 barOneStyle.backgroundColor = processColor;
@@ -248,8 +251,7 @@ class SortVisualizer {
 }
 
 //HEAP SORT
-const animation = []
-async function heapify(arr, length, parentIndex){
+async function heapify(arr, length, parentIndex, animation){
     let largest = parentIndex;
     let left = parentIndex * 2 + 1;
     let right = parentIndex * 2 + 2;
@@ -273,22 +275,21 @@ async function heapify(arr, length, parentIndex){
             // heapSwapAnimations(parentIndex, largest, arr, length)
             
             // await sleep(declareSpeed(length))
-            heapify(arr, length, largest)
+            heapify(arr, length, largest, animation)
             
         }
         animation.push([parentIndex,left,right,1])
     }
 
 }
-async function heap(arr){
+async function heap(arr, animation){
     let length = arr.length
     let lastParentNode = Math.floor(length / 2 - 1);
     let lastChild = length - 1;
     
-    
     while(lastParentNode >= 0){
         
-        heapify(arr,length,lastParentNode)
+        heapify(arr,length,lastParentNode, animation)
         lastParentNode--;
         
     }
@@ -298,10 +299,15 @@ async function heap(arr){
         animation.push([0,lastChild,0,3])
         // heapSwapAnimations(0, lastChild, arr, length)
         // await sleep(declareSpeed(length))
-        heapify(arr, lastChild, 0)
+        heapify(arr, lastChild, 0, animation)
         lastChild--;  
         
     }
+}
+function getHeapAnimations(arr){
+    let animation = []
+    heap(arr,animation)
+    return animation
 }
 // async function highlightHeapAnimations(a, b, c, length){
 //     let speed = declareSpeed(length)
@@ -340,12 +346,15 @@ async function bubbleAnimation(a, b, arr, speed){
     block[b].style.backgroundColor = normalColor
     return
 }
-async function highlightBubbleAnimation(a, b, length, speed){
-    if (a == length - 1){
+async function highlightBubbleAnimation(a, b, arr, speed){
+    if (a == arr.length - 1){
+        playNote(200 + (block[a].style.height.slice(0,-2) * soundMultiplier))
         block[a].style.backgroundColor = highlightColor
         await sleep(speed)
         block[a].style.backgroundColor = normalColor
     }else{
+        playNote(200 + (block[a].style.height.slice(0,-2) * soundMultiplier))
+        playNote(200 + (block[b].style.height.slice(0,-2) * soundMultiplier))
         block[a].style.backgroundColor = highlightColor
         block[b].style.backgroundColor = highlightColor
         await sleep(speed)
@@ -367,24 +376,18 @@ async function selectionMinIndexAnimation(a, b, arr, speed){
 async function selectionSortSwapAnimation(a, b, arr, speed){
     block[a].style.backgroundColor = processColor
     block[b].style.backgroundColor = processColor
+    playNote(200 + (block[a].style.height.slice(0,-2) * soundMultiplier))
     await sleep(speed)
     block[a].style.height = arr[a]/2 + 'px'
     block[b].style.height = arr[b]/2 + 'px'
     block[a].style.backgroundColor = normalColor
     block[b].style.backgroundColor = sortedColor
 }
-async function highlightSelectionAnimation(a, b, length, speed){
-    if (a == length - 1){
-        block[a].style.backgroundColor = highlightColor
-        await sleep(speed)
-        block[a].style.backgroundColor = normalColor
-    }else{
-        block[a].style.backgroundColor = processColor
-        block[b].style.backgroundColor = highlightColor
-        await sleep(speed)
-        block[a].style.backgroundColor = normalColor
-        block[b].style.backgroundColor = normalColor
-    }
+async function highlightSelectionAnimation(a, arr, speed){
+    block[a].style.backgroundColor = highlightColor
+    playNote(200 + (block[a].style.height.slice(0,-2) * soundMultiplier))
+    await sleep(speed)
+    block[a].style.backgroundColor = normalColor
 }
 //MERGE SORT ALL CREDITS TO https://www.youtube.com/watch?v=pFXYym4Wbkc&t=1818s
 function getMergeSortAnimations (arr){
@@ -462,16 +465,10 @@ function declareSpeed(length){
     return speed
 }
 async function doneAnimation(length, speed){
-    
-    for(let i = 0; i < length; i++){
-        if(animationDone == true){
-            block[i].style.backgroundColor = processColor
-            await sleep(speed)
-        }
-    }
     for(let i = 0; i < length; i++){
         if(animationDone == true){
             block[i].style.backgroundColor = doneColor
+            playNote(200 + (i * 10))
             await sleep(speed)
             
         }
@@ -515,8 +512,45 @@ function clearButton(){
     });
 }
 
+let audio = null;
+var soundCheck = true
+let soundMultiplier = 1
+function playNote(freq){
+    if(soundCheck){
+        if(audio == null){
+            audio = new(
+                AudioContext ||
+                webkitAudioContext ||
+                window.webkiteAudioContext
+            )();
+            
+        }
+        const duration = 0.1;
+        const osc = audio.createOscillator();
+        osc.frequency.value = freq;
+        osc.start();
+        osc.stop(audio.currentTime+duration);
+        const node = audio.createGain();
+        node.gain.value = 0.05;
+        node.gain.linearRampToValueAtTime(
+            0, audio.currentTime + duration
+        );
+        osc.connect(node);
+        node.connect(audio.destination);
+    }
+}
+var soundButton = document.getElementById('sound')
+function soundToggle(){
+    if(soundCheck){
+        soundCheck = false
+        soundButton.style.backgroundColor = 'red'
+    }else{
+        soundCheck = true
+        soundButton.style.backgroundColor = 'green'
+    }
 
+}
 
 //displays array when loading the website
-data = new SortVisualizer(50)
-data.makeBlock()
+data = new SortVisualizer(50);
+data.makeBlock();

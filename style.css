@@ -10,6 +10,9 @@ nav{
     justify-content: center;
     gap: 40px;
 }
+.on{
+    background-color: green;
+}
 .slider{
     -webkit-appearance: none;
     background-color: darkgray;
