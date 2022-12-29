@@ -9,16 +9,17 @@
 </head>
 <body>
     <nav>
-        <button onclick = 'randomizeArray()'>Randomize</button>
+        <button onclick = 'randomizeArray()'>Randomize Array</button>
+        <div></div>
         <div class="slidecontainer">
+            <span>Change Array Size</span>
             <input type="range" min="1" max="100" value="50" class="slider" id="range">
-            <p id = 'output'>50</p>
         </div>
-        
-        <button onclick = 'bubbleSort()' id = 'bubble'>Bubble</button>
-        <button onclick="selectionSort()">Selection</button>
-        <button onclick="mergeSort()">Merge</button>
-        
+        <div></div>
+        <button onclick = "bubbleSort()" id = 'bubble'>Bubble Sort</button>
+        <button onclick="selectionSort()" id = 'selection'>Selection Sort</button>
+        <button onclick="mergeSort()" id = 'merge'>Merge Sort</button>
+        <button onclick="heapSort()" id = 'heap'>Heap Sort</button>    
     </nav>
     <div class = 'data'>
     </div>

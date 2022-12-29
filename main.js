@@ -1,22 +1,28 @@
 var slider = document.getElementById('range')
 var output = document.getElementById('output')
 let block = document.getElementsByClassName('block')
-let bubbleButton = document.getElementById('bubble')
+var buttons = document.querySelectorAll('button')
+var bubble = document.getElementById('bubble')
+var selection = document.getElementById('selection')
+var mergeb = document.getElementById('merge')
+var heapb = document.getElementById('heap')
+//html
+
 var animationOngoing = false
 var animationDone = false
+var buttonCheck = false
 var data //global object
 
 //sort coloring
 var doneColor = 'white'
 var processColor = 'red'
 var highlightColor = 'green'
-var normalColor = 'blue'
+var normalColor = 'cyan'
 var sortedColor = 'purple'
 
 
 
 slider.oninput = function() {
-    output.innerHTML = this.value;
     var number = this.value
     data = new SortVisualizer(number)
     data.makeBlock()
@@ -27,21 +33,43 @@ function randomizeArray(){
     data = new SortVisualizer(slider.value)
     data.makeBlock()
 }
+
 function bubbleSort(){
+    if(animationOngoing == false){
+        clearButton()
+        bubble.classList.add('active')
+    }
     data.bubbleSort()
 }
 function selectionSort(){
+    if(animationOngoing == false){
+        clearButton()
+        selection.classList.add('active')
+    }
     data.selectionSort()
 }
 function mergeSort(){
+    if(animationOngoing == false){
+        clearButton()
+        mergeb.classList.add('active')
+    }
     data.mergeSort()
 }
+function heapSort(){
+    if(animationOngoing == false){
+        clearButton()
+        heapb.classList.add('active')
+    }
+    data.heapSort()
+}
+
+
 
 class SortVisualizer {
     constructor (number) {
+        clearButton()
         this.number = number * 4
         this.randomData = generateRandomArray(this.number)
-        this.sortedData = this.randomData.valueOf()
         animationOngoing = false
         animationDone = false
     }
@@ -56,10 +84,11 @@ class SortVisualizer {
             block.style.width = 50 + 'px';
             data.append(block)
         }
-        //reenable bubble button
-        bubbleButton.disabled = false
     };
     async bubbleSort(){
+        if(animationOngoing){
+            return
+        }
         animationDone = false
         animationOngoing = true
         let length = this.randomData.length
@@ -95,7 +124,6 @@ class SortVisualizer {
         }
         animationDone = false
         while(!animationDone){
-            bubbleButton.disabled = true
             animationOngoing = true
             let length = this.randomData.length
             let speed = declareSpeed(length)
@@ -126,7 +154,6 @@ class SortVisualizer {
             animationDone = true
             doneAnimation(length,speed)
         }
-        bubbleButton.disabled = false
     }
     //https://www.youtube.com/watch?v=pFXYym4Wbkc&t=1818s
     async mergeSort(){
@@ -136,7 +163,7 @@ class SortVisualizer {
         animationDone = false
         animationOngoing = true
             let length = this.randomData.length
-            let speed = length / 100000
+            let speed = declareSpeed(length)
             let animations = getMergeSortAnimations(this.randomData)
             for (let i = 0; i < animations.length; i++) {
                 if (!animationOngoing){
@@ -164,10 +191,144 @@ class SortVisualizer {
                 return
             }
     }
+    async heapSort(){
+        if(animationOngoing){
+            return
+        }
+        animationDone = false
+        animationOngoing = true
+        let length = this.randomData.length
+        let speed = declareSpeed(length)
+        heap(this.randomData)
+        for(let i in animation){
+            if (!animationOngoing){
+                return
+            }
+            const isColorChange = animation[i].at(3);
+            if (isColorChange == 0) {
+                const [barOneIdx, barTwoIdx, barThreeIdx] = animation[i];
+                const barOneStyle = block[barOneIdx].style;
+                const barTwoStyle = block[barTwoIdx].style;
+                const barThreeStyle = block[barThreeIdx].style;
+                barOneStyle.backgroundColor = highlightColor;
+                barTwoStyle.backgroundColor = highlightColor;
+                barThreeStyle.backgroundColor = highlightColor;
+                await sleep(speed)
+            }else if (isColorChange == 1){
+                const [barOneIdx, barTwoIdx, barThreeIdx] = animation[i];
+                const barOneStyle = block[barOneIdx].style;
+                const barTwoStyle = block[barTwoIdx].style;
+                const barThreeStyle = block[barThreeIdx].style;
+                barOneStyle.backgroundColor = normalColor;
+                barTwoStyle.backgroundColor = normalColor;
+                barThreeStyle.backgroundColor = normalColor;
+                await sleep(speed)
+            }else{
+                const [barOneIdx, barTwoIdx] = animation[i];
+                const barOneStyle = block[barOneIdx].style;
+                const barTwoStyle = block[barTwoIdx].style;
+                barOneStyle.backgroundColor = processColor;
+                barTwoStyle.backgroundColor = processColor;
+                await sleep(speed)
+                let temp = barOneStyle.height
+                barOneStyle.height = barTwoStyle.height
+                barTwoStyle.height = temp
+                const color = isColorChange === 2 ? highlightColor : sortedColor;
+                barOneStyle.backgroundColor = color;
+                barTwoStyle.backgroundColor = color;
+                await sleep(speed)
+            }
+        }
+        animationDone = true
+        if(animationDone){
+            doneAnimation(length,speed)
+            return
+        }
+    }
 }
 
+//HEAP SORT
+const animation = []
+async function heapify(arr, length, parentIndex){
+    let largest = parentIndex;
+    let left = parentIndex * 2 + 1;
+    let right = parentIndex * 2 + 2;
+    if(left < length && right < length ){
+        animation.push([parentIndex,left,right,0])
+        
+        // highlightHeapAnimations(parentIndex, left, right, length)
+        
+        if(left < length && arr[left] > arr[largest]){
+            
+            largest = left;
+            
+        }
+        if(right < length && arr[right] > arr[largest]){
+            largest = right;
+        }
+        if(largest !== parentIndex){
+            
+            swap(arr, parentIndex, largest)
+            animation.push([parentIndex,largest,0,2])
+            // heapSwapAnimations(parentIndex, largest, arr, length)
+            
+            // await sleep(declareSpeed(length))
+            heapify(arr, length, largest)
+            
+        }
+        animation.push([parentIndex,left,right,1])
+    }
 
-
+}
+async function heap(arr){
+    let length = arr.length
+    let lastParentNode = Math.floor(length / 2 - 1);
+    let lastChild = length - 1;
+    
+    
+    while(lastParentNode >= 0){
+        
+        heapify(arr,length,lastParentNode)
+        lastParentNode--;
+        
+    }
+    while(lastChild >= 0){
+        
+        swap(arr, 0 , lastChild)
+        animation.push([0,lastChild,0,3])
+        // heapSwapAnimations(0, lastChild, arr, length)
+        // await sleep(declareSpeed(length))
+        heapify(arr, lastChild, 0)
+        lastChild--;  
+        
+    }
+}
+// async function highlightHeapAnimations(a, b, c, length){
+//     let speed = declareSpeed(length)
+//     const barOneStyle = block[a].style;
+//     const barTwoStyle = block[b].style;
+//     const barThreeStyle = block[c].style;
+//     console.log(a,b,c, length)
+//     barOneStyle.backgroundColor = highlightColor;
+//     barTwoStyle.backgroundColor = highlightColor;
+//     barThreeStyle.backgroundColor = highlightColor;
+//     // await sleep(speed)
+//     // barOneStyle.backgroundColor = normalColor;
+//     // barTwoStyle.backgroundColor = normalColor;
+//     // barThreeStyle.backgroundColor = normalColor;
+//     return
+// }
+// async function heapSwapAnimations(a, b, arr, length){
+//     let speed = declareSpeed(length)
+//     // block[a].stylebackgroundColor = processColor
+//     // block[b].style.backgroundColor = processColor
+//     block[a].style.height = arr[a]/2 + 'px';
+//     block[b].style.height = arr[b]/2 + 'px';
+//     await sleep(speed)
+//     // block[a].stylebackgroundColor = normalColor;
+//     // block[b].style.backgroundColor = normalColor;
+//     // return
+// }
 // BUBBLE SORTING
 async function bubbleAnimation(a, b, arr, speed){
     block[a].style.backgroundColor = processColor
@@ -265,33 +426,19 @@ function merge(
         animations.push([k, auxiliaryArray[i]]);
         mainArray[k++] = auxiliaryArray[i++];
       } else {
-        // We overwrite the value at index k in the original array with the
-        // value at index j in the auxiliary array.
         animations.push([k, auxiliaryArray[j]]);
         mainArray[k++] = auxiliaryArray[j++];
       }
     }
     while (i <= middleIdx) {
-      // These are the values that we're comparing; we push them once
-      // to change their color.
       animations.push([i, i]);
-      // These are the values that we're comparing; we push them a second
-      // time to revert their color.
       animations.push([i, i]);
-      // We overwrite the value at index k in the original array with the
-      // value at index i in the auxiliary array.
       animations.push([k, auxiliaryArray[i]]);
       mainArray[k++] = auxiliaryArray[i++];
     }
     while (j <= endIdx) {
-      // These are the values that we're comparing; we push them once
-      // to change their color.
       animations.push([j, j]);
-      // These are the values that we're comparing; we push them a second
-      // time to revert their color.
       animations.push([j, j]);
-      // We overwrite the value at index k in the original array with the
-      // value at index j in the auxiliary array.
       animations.push([k, auxiliaryArray[j]]);
       mainArray[k++] = auxiliaryArray[j++];
     }
@@ -315,6 +462,7 @@ function declareSpeed(length){
     return speed
 }
 async function doneAnimation(length, speed){
+    
     for(let i = 0; i < length; i++){
         if(animationDone == true){
             block[i].style.backgroundColor = processColor
@@ -328,6 +476,7 @@ async function doneAnimation(length, speed){
             
         }
     }
+    buttonCheck = false
 }
 function generateRandomArray(n){
     var array = []
@@ -360,10 +509,14 @@ function compare(a, b){
     //A GREATER B = 1
     //A LESSER B= -1
 }
+function clearButton(){
+    buttons.forEach(button => {
+        button.removeAttribute('class')
+    });
+}
 
 
 
 //displays array when loading the website
 data = new SortVisualizer(50)
 data.makeBlock()
-
