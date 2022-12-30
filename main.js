@@ -293,7 +293,7 @@ async function heap(arr, animation){
         lastParentNode--;
         
     }
-    while(lastChild >= 0){
+    while(lastChild > 0){
         
         swap(arr, 0 , lastChild)
         animation.push([0,lastChild,0,3])
