@@ -513,7 +513,7 @@ function clearButton(){
 }
 
 let audio = null;
-var soundCheck = true
+var soundCheck = false
 let soundMultiplier = 1
 function playNote(freq){
     if(soundCheck){
@@ -531,7 +531,7 @@ function playNote(freq){
         osc.start();
         osc.stop(audio.currentTime+duration);
         const node = audio.createGain();
-        node.gain.value = 0.05;
+        node.gain.value = 0.02;
         node.gain.linearRampToValueAtTime(
             0, audio.currentTime + duration
         );
