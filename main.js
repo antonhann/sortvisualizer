@@ -293,7 +293,7 @@ async function heap(arr, animation){
         lastParentNode--;
         
     }
-    while(lastChild > 0){
+    while(lastChild >= 0){
         
         swap(arr, 0 , lastChild)
         animation.push([0,lastChild,0,3])
@@ -302,6 +302,10 @@ async function heap(arr, animation){
         heapify(arr, lastChild, 0, animation)
         lastChild--;  
         
+    }
+    if(arr[0] > arr[1]){
+        swap(arr,0,1)
+        animation.push([0,1,0,3])
     }
 }
 function getHeapAnimations(arr){
@@ -513,7 +517,7 @@ function clearButton(){
 }
 
 let audio = null;
-var soundCheck = false
+var soundCheck = true
 let soundMultiplier = 1
 function playNote(freq){
     if(soundCheck){
