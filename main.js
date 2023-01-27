@@ -15,13 +15,13 @@ var data //global object
 
 //sort coloring
 var doneColor = 'white'
-var processColor = 'red'
-var highlightColor = 'green'
+var processColor = '#E74C3C'
+var highlightColor = '#2ECC71'
 var normalColor = 'cyan'
-var sortedColor = 'purple'
+var sortedColor = '#9B59B6'
 
 
-
+//function for the live updating range slider to change the size of the array
 slider.oninput = function() {
     var number = this.value
     data = new SortVisualizer(number)
@@ -33,7 +33,6 @@ function randomizeArray(){
     data = new SortVisualizer(slider.value)
     data.makeBlock()
 }
-
 function bubbleSort(){
     if(animationOngoing == false){
         clearButton()
@@ -64,7 +63,7 @@ function heapSort(){
 }
 
 
-
+// sortVisualizer class that creates the array and displays it to the user, and it includes methods such as the sorting algs 
 class SortVisualizer {
     constructor (number) {
         clearButton()
@@ -95,8 +94,9 @@ class SortVisualizer {
         let speed = declareSpeed(length)
         for(var i = 0; i < length; i++){
             let sorted = true
-
+            //check whether the array is sorted or not based on if there is a comparison made or not
             for (var j = 0; j < length - i - 1; j++){
+                //below function takes the arguments of the index of the array that is being compared and if they are complications with the blocks we swap them and also animate the highlight as well
                 highlightBubbleAnimation(j, j+1, this.randomData, speed)
                 await sleep(speed)
                 if (compare(this.randomData[j], this.randomData[j + 1]) === 1){
@@ -105,15 +105,18 @@ class SortVisualizer {
                     await sleep(speed)
                     sorted = false
                     if (animationOngoing == false){
+                        //exit the function if the array was reseted or altered
                         return
                     }
                 }
             }
+            //changes the color of the block to being sorted since every cycle the largest element of the array would be in it correct spot if done correctly
             doneBubbleBlock((length - 1) - i, length, speed)
             if(sorted == true){
                 break
             }
         }
+        //declares the sorting alg is done and gives the user a done animation
         animationDone = true
         doneAnimation(length, speed)
     }
@@ -131,6 +134,7 @@ class SortVisualizer {
                 let sorted = true
                 let minIndex = i
                 for(var j = 1 + i; j < length; j++){
+                    //animates the highlighting or hovering of the for loop and shows the user what is being compared and if a new bottom is found the block is animated to represent that change
                     highlightSelectionAnimation(j, this.randomData, speed)
                     await sleep(speed)
                     if(this.randomData[j] < this.randomData[minIndex] || (i == 0 && j == 0)){
@@ -144,6 +148,7 @@ class SortVisualizer {
                     }
                 }
                 swap(this.randomData, minIndex, i)
+                //after every cycle of the nested loop we animate the swap between the proper first element and the smallest element of the array 
                 selectionSortSwapAnimation(minIndex, i, this.randomData, speed)
                 await sleep(speed)
                 if(sorted == true){
@@ -162,6 +167,8 @@ class SortVisualizer {
         }
         animationDone = false
         animationOngoing = true
+            //there was lots of frustration animating merge sort for many reasons decided to look for another way to animate merge sort and credits to the youtube above
+            //his idea was to create a merge sort that uses a aux array in order to keep the indexes of the array that were being selected or compared in order to animate the animation properly
             let length = this.randomData.length
             let speed = declareSpeed(length)
             let animations = getMergeSortAnimations(this.randomData)
@@ -169,6 +176,7 @@ class SortVisualizer {
                 if (!animationOngoing){
                     return
                 }
+                //since in the merge function we append the selected twice is to show the comparison then undo the comparison we use that into account to determine which animation is which
                 const isColorChange = i % 3 !== 2;
                 if (isColorChange) {
                 const [barOneIdx, barTwoIdx] = animations[i];
@@ -196,6 +204,8 @@ class SortVisualizer {
         if(animationOngoing){
             return
         }
+        // decided to use the same approach as getting the animations in a list and iterate the list to show the animations
+        //we get the heap animations list and based of the index at the 3 we can do the proper animation to the user whether it was a swap or a highlighting
         animationDone = false
         animationOngoing = true
         let length = this.randomData.length
@@ -547,10 +557,10 @@ var soundButton = document.getElementById('sound')
 function soundToggle(){
     if(soundCheck){
         soundCheck = false
-        soundButton.style.backgroundColor = 'red'
+        soundButton.style.backgroundColor = '#E74C3C '
     }else{
         soundCheck = true
-        soundButton.style.backgroundColor = 'green'
+        soundButton.style.backgroundColor = '#58D68D'
     }
 
 }
