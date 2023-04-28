@@ -1,6 +1,7 @@
 *{
     font-family: 'Courier New', Courier, monospace;
     background-color: #1B2631;
+    font-size: 1vw;
 }
 nav{
     background-color:#7F8C8D;
@@ -9,6 +10,7 @@ nav{
     align-items: center;
     justify-content: center;
     gap: 40px;
+    padding: 10px 10px;
 }
 .on{
     background-color: #58D68D ;
@@ -48,7 +50,7 @@ span{
 }
 button{
     width: 8rem;
-    height: 2rem;
+    height: 4rem;
     border-radius: 10%;
     background-color: white;
     border: 1px solid black;
