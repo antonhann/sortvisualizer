@@ -9,22 +9,32 @@
 </head>
 <body>
     <nav>
-        <button onclick = 'randomizeArray()'>Randomize Array</button>
-        <div></div>
-        <div class="slidecontainer">
-            <span>Change Array Size</span>
+        <button class = "randomButton" onclick = 'randomizeArray()'>Randomize<br>Array</button>
+        <div class="dropdown">
+            <button class="dropbtn">Sorting <br> Algorithms</button>
+            <div class="dropdown-content">
+                <button onclick = "bubbleSort()" id = 'bubble'>Bubble Sort</button>
+                <button onclick="selectionSort()" id = 'selection'>Selection Sort</button>
+                <button onclick="mergeSort()" id = 'merge'>Merge Sort</button>
+                <button onclick="heapSort()" id = 'heap'>Heap Sort</button>
+            </div>
+        </div>
+        <div class="slideContainer">
+            <span>Array Size</span>
             <input type="range" min="1" max="100" value="50" class="slider" id="range">
         </div>
-        <div></div>
-        <button onclick = "bubbleSort()" id = 'bubble'>Bubble Sort</button>
-        <button onclick="selectionSort()" id = 'selection'>Selection Sort</button>
-        <button onclick="mergeSort()" id = 'merge'>Merge Sort</button>
-        <button onclick="heapSort()" id = 'heap'>Heap Sort</button>
-        <div></div>
+        <div class = "buttons">
+            <button onclick = "bubbleSort()" id = 'bubble'>Bubble Sort</button>
+            <button onclick="selectionSort()" id = 'selection'>Selection Sort</button>
+            <button onclick="mergeSort()" id = 'merge'>Merge Sort</button>
+            <button onclick="heapSort()" id = 'heap'>Heap Sort</button>
+        </div>
         <button onclick="soundToggle()" style="width:5rem; background-color: #58D68D ;" id = 'sound'>Sound</button>    
     </nav>
-    <div class = 'data'>
+    <div class = "container">
+        <div class = 'data'></div>
     </div>
+    
     <script src = 'main.js'></script>
 </body>
 </html>

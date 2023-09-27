@@ -29,6 +29,23 @@ slider.oninput = function() {
 }
 
 //html button functions
+const dropdownButton = document.querySelector(".dropbtn");
+const dropdownContent = document.querySelector(".dropdown-content");
+const dropdownButtons = document.querySelectorAll(".dropdown-content button")
+dropdownButton.addEventListener("click", function() {
+    if (dropdownContent.style.display === "block") {
+        dropdownContent.style.display = "none";
+    } else {
+        dropdownContent.style.display = "block";
+    }
+});
+dropdownButtons.forEach((button) => {
+    button.addEventListener(("click"), () => {
+        if (dropdownContent.style.display === "block") {
+            dropdownContent.style.display = "none";
+        }
+    })
+});
 function randomizeArray(){
     data = new SortVisualizer(slider.value)
     data.makeBlock()
@@ -568,3 +585,4 @@ function soundToggle(){
 //displays array when loading the website
 data = new SortVisualizer(50);
 data.makeBlock();
+
